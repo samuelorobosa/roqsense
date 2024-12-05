@@ -91,13 +91,16 @@ const styles = StyleSheet.create({
 
     },
     button: {
-        backgroundColor: '#242424',
+        backgroundColor: '#2A2F36',
         paddingVertical: 6,
         paddingHorizontal: 8,
-        borderRadius: 25,
+        borderRadius: 8,
         marginBottom: 10,
         width: "auto",
         alignItems: 'center',
+        borderColor: '#FFF',
+        borderWidth: 0.2,
+        borderStyle: 'solid',
     },
     buttonText: {
         color: '#FFF',
