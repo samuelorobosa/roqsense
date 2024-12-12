@@ -1,7 +1,58 @@
-import React from 'react';
-import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, Image, TextInput, TouchableOpacity, StyleSheet, ScrollView} from 'react-native';
+import axios from "axios";
 
 export default function App() {
+    const [prompt, setPrompt] = useState('');
+    const [messages, setMessages] = useState([]);
+    const [isFinished, setIsFinished] = useState(false);
+    const startStream = async () => {
+        console.log('Pressed')
+        setMessages([]);
+        setIsFinished(false);
+
+        try {
+            const response = await axios('http://localhost:8000/api/v1/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                data: {
+                    message: prompt,
+                },
+            });
+
+            console.log(response);
+
+            const reader = response.data.data.getReader();
+            const decoder = new TextDecoder('utf-8');
+
+            let complete = false;
+            while (!complete) {
+                const { value, done } = await reader.read();
+                complete = done;
+
+                if (value) {
+                    const chunk = decoder.decode(value, { stream: true });
+                    const events = chunk.split('\n\n'); // Split SSE chunks
+                    events.forEach((event) => {
+                        if (event.startsWith('data:')) {
+                            const jsonData = JSON.parse(event.replace('data: ', '').trim());
+                            setMessages((prev) => [...prev, jsonData]);
+
+                            if (jsonData.status === 'success') {
+                                setIsFinished(true);
+                                // setLoading(false);
+                            }
+                        }
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Streaming Error:', error);
+            // setLoading(false);
+        }
+    };
     return (
         <View style={styles.container}>
             {/* Header */}
@@ -13,28 +64,45 @@ export default function App() {
             </View>
 
             {/* Main Content */}
-            <View style={styles.mainContent}>
-                {/* Central Illustration */}
-                <Image
-                    source={require('../assets/images/mascot2.png')}
-                    style={styles.illustration}
-                />
-                <Text style={styles.helpText}>What can I help with?</Text>
+            {
+                messages.length > 0 ? (
+                    <ScrollView>
+                        {messages.map((message, index) => (
+                            <View key={index}>
+                                <Text>{JSON.stringify(message)}</Text>
+                            </View>
+                        ))}
+                    </ScrollView>
+                ):(
+                    <View style={styles.mainContent}>
+                        {/* Central Illustration */}
+                        <Image
+                            source={require('../assets/images/mascot2.png')}
+                            style={styles.illustration}
+                        />
+                        <Text style={styles.helpText}>What can I help with?</Text>
 
-                {/* Action Buttons */}
-                <View style={styles.buttonGroup}>
-                    {['Who is Roqqu Sensei?', 'Which coin should I invest in?', "What's my networth?", "What's the TON airdrop?"].map((text, index) => (
-                        <TouchableOpacity key={index} style={styles.button}>
-                            <Text style={styles.buttonText}>{text}</Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-            </View>
+                        {/* Action Buttons */}
+                        <View style={styles.buttonGroup}>
+                            {['Who is Roqqu Sensei?', 'Which coin should I invest in?', "What's my networth?", "What's the TON airdrop?"].map((text, index) => (
+                                <TouchableOpacity key={index} style={styles.button}>
+                                    <Text style={styles.buttonText}>{text}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    </View>
+                )
+            }
 
             {/* Footer Input */}
             <View style={styles.footer}>
-                <TextInput style={styles.input} placeholder="Ask anything" placeholderTextColor="#AAA" />
-                <TouchableOpacity style={styles.microphoneButton}>
+                <TextInput
+                    value={prompt}
+                    onChange={e => setPrompt(e.nativeEvent.text)}
+                    style={styles.input}
+                    placeholder="Ask anything"
+                    placeholderTextColor="#AAA" />
+                <TouchableOpacity onPress={() => startStream()} style={styles.microphoneButton}>
                     <Image source={{ uri: 'https://your-microphone-icon-url.com' }} style={styles.icon} />
                 </TouchableOpacity>
             </View>
