@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import {View, Text, Image, TextInput, TouchableOpacity, StyleSheet, ScrollView} from 'react-native';
 import EventSource from "react-native-sse";
 
 export default function App() {
     const [prompt, setPrompt] = useState('');
-    const [conversation, setConversation] = useState([]);
+    const scrollViewRef = useRef<ScrollView>(null);
+    const [conversation, setConversation] = useState<{ id: number; type: string; content: string; isStreaming?: boolean }[]>([]);
     const [isStreaming, setIsStreaming] = useState(false);
 
     const startStream = () => {
@@ -36,13 +37,15 @@ export default function App() {
                 method: 'POST',
                 body: JSON.stringify({
                     message: prompt,
+                    thread_id: "agsuw"
                 }),
                 pollingInterval: 0,
             });
 
             es.addEventListener('message', (event) => {
                 try {
-                    const data = JSON.parse(event.data);
+                    if (event.data) {
+                        const data = JSON.parse(event.data);
 
                     if (data.status === 'streaming') {
                         // Update the last AI message (which is streaming)
@@ -94,6 +97,7 @@ export default function App() {
                         setIsStreaming(false);
                         es.close();
                     }
+                    }
                 } catch (parseError) {
                     console.error('Error parsing event data:', parseError);
                 }
@@ -120,9 +124,8 @@ export default function App() {
 
             {/* Conversation View */}
             <ScrollView
-                style={styles.conversationContainer}
-                ref={(ref) => {this.scrollView = ref}}
-                onContentSizeChange={() => this.scrollView.scrollToEnd({animated: true})}
+                ref={scrollViewRef}
+                onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({animated: true})}
             >
                 {conversation.length === 0 ? (
                     <View style={styles.mainContent}>
