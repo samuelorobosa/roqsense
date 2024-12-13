@@ -2,6 +2,7 @@ import React, {useState, useRef} from 'react';
 import {View, Text, Image, TextInput, TouchableOpacity, StyleSheet, ScrollView} from 'react-native';
 import EventSource from "react-native-sse";
 import uuid from 'react-native-uuid';
+import Markdown from 'react-native-markdown-display';
 
 export default function App() {
     const [prompt, setPrompt] = useState('');
@@ -166,7 +167,14 @@ export default function App() {
                                 styles.messageText,
                                 message.type === 'user' ? styles.userMessageText : styles.aiMessageText
                             ]}>
-                                {message.content}
+                                <Markdown
+                                    style={{
+                                    text: {
+                                        color: message.type === 'user' ? '#FFF' : '#DDD'
+                                    },
+                                }}>
+                                    {message.content}
+                                </Markdown>
                             </Text>
                             {message.isStreaming && (
                                 <Text style={styles.streamingIndicator}>...</Text>
