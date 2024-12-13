@@ -1,12 +1,14 @@
 import React, {useState, useRef} from 'react';
 import {View, Text, Image, TextInput, TouchableOpacity, StyleSheet, ScrollView} from 'react-native';
 import EventSource from "react-native-sse";
+import uuid from 'react-native-uuid';
 
 export default function App() {
     const [prompt, setPrompt] = useState('');
     const scrollViewRef = useRef<ScrollView>(null);
     const [conversation, setConversation] = useState<{ id: number; type: string; content: string; isStreaming?: boolean }[]>([]);
     const [isStreaming, setIsStreaming] = useState(false);
+    const [threadId, setThreadId] = useState(uuid.v4());
 
     const startStream = () => {
         // Immediately add user message to conversation
@@ -37,7 +39,7 @@ export default function App() {
                 method: 'POST',
                 body: JSON.stringify({
                     message: prompt,
-                    thread_id: "agsuw"
+                    thread_id: threadId,
                 }),
                 pollingInterval: 0,
             });
@@ -117,7 +119,11 @@ export default function App() {
             {/* Header */}
             <View style={styles.header}>
                 <Image source={require('../assets/images/roqqu-logo.png')} style={styles.logo} />
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => {
+                    //Create a new thread Id and start a new conversation
+                    setThreadId(uuid.v4());
+                    setConversation([]);
+                }}>
                     <Image source={require('../assets/images/Line.png')} style={styles.icon} />
                 </TouchableOpacity>
             </View>
