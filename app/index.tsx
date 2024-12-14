@@ -1,6 +1,9 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {View, Text, Image, TextInput, TouchableOpacity, StyleSheet, ScrollView} from 'react-native';
 import EventSource from "react-native-sse";
+import { Animated } from 'react-native';
+
+
 
 export default function App() {
     const [prompt, setPrompt] = useState('');
@@ -8,12 +11,12 @@ export default function App() {
     const [conversation, setConversation] = useState<{ id: number; type: string; content: string; isStreaming?: boolean }[]>([]);
     const [isStreaming, setIsStreaming] = useState(false);
 
-    const startStream = () => {
+    const startStream = (customPrompt?: string) => {
         // Immediately add user message to conversation
         const userMessage = {
             id: Date.now(),
             type: 'user',
-            content: prompt
+            content: customPrompt? customPrompt : prompt
         };
 
         // Add user message to conversation
@@ -36,7 +39,7 @@ export default function App() {
                 },
                 method: 'POST',
                 body: JSON.stringify({
-                    message: prompt,
+                    message: customPrompt? customPrompt :prompt,
                     thread_id: "agsuw"
                 }),
                 pollingInterval: 0,
@@ -112,6 +115,27 @@ export default function App() {
         }
     };
 
+    // Create an Animated value for the pulse effect
+    const pulseAnim = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        // Create an infinite pulsing animation
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(pulseAnim, {
+                    toValue: 1,
+                    duration: 1000, // 1 second for full pulse cycle
+                    useNativeDriver: true,
+                }),
+                Animated.timing(pulseAnim, {
+                    toValue: 0,
+                    duration: 1000,
+                    useNativeDriver: true,
+                })
+            ])
+        ).start();
+    }, [isStreaming]);
+
     return (
         <View style={styles.container}>
             {/* Header */}
@@ -141,8 +165,8 @@ export default function App() {
                                     key={index}
                                     style={styles.button}
                                     onPress={() => {
-                                        setPrompt(text);
-                                        startStream();
+                                        // setPrompt(text);
+                                        startStream(text);
                                     }}
                                 >
                                     <Text style={styles.buttonText}>{text}</Text>
@@ -161,10 +185,29 @@ export default function App() {
                                 message.type === 'user' ? styles.userMessageText : styles.aiMessageText
                             ]}>
                                 {message.content}
+                                {message.isStreaming && (
+                                    <Animated.Image 
+                                        source={require('../assets/images/Loader.png')} 
+                                        style={[
+                                            styles.loader, 
+                                            {
+                                                opacity: pulseAnim.interpolate({
+                                                    inputRange: [0, 1],
+                                                    outputRange: [0.3, 1]
+                                                }),
+                                                transform: [
+                                                    {
+                                                        scale: pulseAnim.interpolate({
+                                                            inputRange: [0, 1],
+                                                            outputRange: [0.8, 1.2]
+                                                        })
+                                                    }
+                                                ]
+                                            }
+                                        ]} 
+                                    />
+                                )}
                             </Text>
-                            {message.isStreaming && (
-                                <Text style={styles.streamingIndicator}>...</Text>
-                            )}
                         </View>
                     ))
                 )}
@@ -205,27 +248,39 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     messageContainer: {
-        maxWidth: '85%',
         marginVertical: 5,
         padding: 10,
         borderRadius: 10,
+        alignItems: 'center',
     },
     userMessageContainer: {
         alignSelf: 'flex-end',
-        backgroundColor: '#2A2F36',
+        backgroundColor: '#1C2127',
+        maxWidth: '85%',
+        padding: 14,
     },
     aiMessageContainer: {
         alignSelf: 'flex-start',
-        backgroundColor: '#1A1E23',
+        maxWidth: '95%',
     },
     messageText: {
         fontSize: 14,
     },
     userMessageText: {
         color: '#FFF',
+        fontFamily: "Inter",
+        fontSize: 14,
+        fontStyle: 'normal',
+        fontWeight: 400,
+        lineHeight: 20
     },
     aiMessageText: {
         color: '#DDD',
+        fontFamily: "Inter",
+        fontSize: 14,
+        fontStyle: 'normal',
+        fontWeight: 400,
+        lineHeight: 20
     },
     streamingIndicator: {
         color: '#AAA',
@@ -252,6 +307,7 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        marginVertical: '50%',
     },
     illustration: {
         width: 164,
@@ -316,5 +372,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 0,
         paddingVertical: 5,
         marginVertical: 5,
+    },
+    loader: {
+        width: 20,
+        height: 20,
+        opacity: 0.5, 
+        transform: [{ scale: 0.8 }], 
+        // padding: 10
     },
 });
