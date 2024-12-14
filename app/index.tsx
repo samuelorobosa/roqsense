@@ -4,12 +4,15 @@ import EventSource from "react-native-sse";
 import { Animated } from 'react-native';
 
 
+import uuid from 'react-native-uuid';
+import Markdown from 'react-native-markdown-display';
 
 export default function App() {
     const [prompt, setPrompt] = useState('');
     const scrollViewRef = useRef<ScrollView>(null);
     const [conversation, setConversation] = useState<{ id: number; type: string; content: string; isStreaming?: boolean }[]>([]);
     const [isStreaming, setIsStreaming] = useState(false);
+    const [threadId, setThreadId] = useState(uuid.v4());
 
     const startStream = (customPrompt?: string) => {
         // Immediately add user message to conversation
@@ -39,8 +42,8 @@ export default function App() {
                 },
                 method: 'POST',
                 body: JSON.stringify({
-                    message: customPrompt? customPrompt :prompt,
-                    thread_id: "agsuw"
+                    message: prompt,
+                    thread_id: threadId,
                 }),
                 pollingInterval: 0,
             });
@@ -141,7 +144,11 @@ export default function App() {
             {/* Header */}
             <View style={styles.header}>
                 <Image source={require('../assets/images/roqqu-logo.png')} style={styles.logo} />
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => {
+                    //Create a new thread Id and start a new conversation
+                    setThreadId(uuid.v4());
+                    setConversation([]);
+                }}>
                     <Image source={require('../assets/images/Line.png')} style={styles.icon} />
                 </TouchableOpacity>
             </View>
@@ -165,7 +172,6 @@ export default function App() {
                                     key={index}
                                     style={styles.button}
                                     onPress={() => {
-                                        // setPrompt(text);
                                         startStream(text);
                                     }}
                                 >
@@ -184,7 +190,16 @@ export default function App() {
                                 styles.messageText,
                                 message.type === 'user' ? styles.userMessageText : styles.aiMessageText
                             ]}>
-                                {message.content}
+                                <Markdown
+                                style={{
+                                text: {
+                                    color: message.type === 'user' ? '#FFF' : '#DDD',
+                                    lineHeight: 22
+                                },
+                                }}>
+                                    {message.content}
+                                </Markdown>
+
                                 {message.isStreaming && (
                                     <Animated.Image 
                                         source={require('../assets/images/Loader.png')} 
@@ -249,7 +264,7 @@ const styles = StyleSheet.create({
     },
     messageContainer: {
         marginVertical: 5,
-        padding: 10,
+        // padding: 10,
         borderRadius: 10,
         alignItems: 'center',
     },
@@ -257,7 +272,8 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
         backgroundColor: '#1C2127',
         maxWidth: '85%',
-        padding: 14,
+        padding: 8,
+        paddingHorizontal: 14
     },
     aiMessageContainer: {
         alignSelf: 'flex-start',
@@ -280,7 +296,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontStyle: 'normal',
         fontWeight: 400,
-        lineHeight: 20
+        lineHeight: 24
     },
     streamingIndicator: {
         color: '#AAA',
