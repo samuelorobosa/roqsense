@@ -3,6 +3,7 @@ import {View, Text, Image, TextInput, TouchableOpacity, StyleSheet, ScrollView} 
 import EventSource from "react-native-sse";
 import uuid from 'react-native-uuid';
 import Markdown from 'react-native-markdown-display';
+import ChartComponent from "@/app/HistoricalChart";
 
 export default function App() {
     const [prompt, setPrompt] = useState('');
@@ -65,14 +66,32 @@ export default function App() {
                         });
                     }
                     else if (data.status === 'success') {
-                        // Finalize the streaming message
+                        // Parse the historical data for rendering
+                        const historicalData = data.data.historic_data[0].data.map(item => ({
+                            time: new Date(item[0]).toLocaleDateString(), // Convert timestamp to readable date
+                            price: parseFloat(item[4]), // Closing price
+                        }));
+
+                        const chartData = {
+                            labels: historicalData.map(entry => entry.time),
+                            datasets: [
+                                {
+                                    data: historicalData.map(entry => entry.price),
+                                    color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`, // Line color
+                                    strokeWidth: 2, // Line thickness
+                                },
+                            ],
+                        };
+
                         setConversation(prevConversation => {
                             const updatedConversation = [...prevConversation];
                             const lastMessageIndex = updatedConversation.length - 1;
 
+                            // Append the chart data message
                             updatedConversation[lastMessageIndex] = {
                                 ...updatedConversation[lastMessageIndex],
-                                isStreaming: false
+                                isStreaming: false,
+                                chartData,
                             };
 
                             return updatedConversation;
@@ -159,26 +178,31 @@ export default function App() {
                     </View>
                 ) : (
                     conversation.map((message, index) => (
-                        <View key={message.id} style={[
-                            styles.messageContainer,
-                            message.type === 'user' ? styles.userMessageContainer : styles.aiMessageContainer
-                        ]}>
-                            <Text style={[
-                                styles.messageText,
-                                message.type === 'user' ? styles.userMessageText : styles.aiMessageText
-                            ]}>
+                        <View
+                            key={message.id}
+                            style={[
+                                styles.messageContainer,
+                                message.type === 'user' ? styles.userMessageContainer : styles.aiMessageContainer,
+                            ]}
+                        >
+                            <Text
+                                style={[
+                                    styles.messageText,
+                                    message.type === 'user' ? styles.userMessageText : styles.aiMessageText,
+                                ]}
+                            >
                                 <Markdown
                                     style={{
-                                    text: {
-                                        color: message.type === 'user' ? '#FFF' : '#DDD'
-                                    },
-                                }}>
+                                        text: {
+                                            color: message.type === 'user' ? '#FFF' : '#DDD',
+                                        },
+                                    }}
+                                >
                                     {message.content}
                                 </Markdown>
                             </Text>
-                            {message.isStreaming && (
-                                <Text style={styles.streamingIndicator}>...</Text>
-                            )}
+                            {message.chartData && <ChartComponent chartData={message.chartData} />}
+                            {message.isStreaming && <Text style={styles.streamingIndicator}>...</Text>}
                         </View>
                     ))
                 )}
