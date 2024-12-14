@@ -149,7 +149,7 @@ export default function App() {
                     setThreadId(uuid.v4());
                     setConversation([]);
                 }}>
-                    <Image source={require('../assets/images/Line.png')} style={styles.icon} />
+                    <Image source={require('../assets/images/newChat.png')} style={styles.icon} />
                 </TouchableOpacity>
             </View>
 
@@ -238,12 +238,12 @@ export default function App() {
                     placeholderTextColor="#AAA"
                     editable={!isStreaming}
                 />
-                <TouchableOpacity
-                    onPress={() => startStream()}
-                    style={styles.microphoneButton}
+                <TouchableOpacity onPress={() => {
+                    startStream()
+                    }}
                     disabled={isStreaming || prompt.trim() === ''}
                 >
-                    <Image source={{ uri: 'https://your-microphone-icon-url.com' }} style={styles.icon} />
+                    <Image source={require('../assets/images/SendBtn.png')} style={styles.send} />
                 </TouchableOpacity>
             </View>
         </View>
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#121212',
-        paddingHorizontal: 20,
+        paddingHorizontal: 10,
         paddingTop: 40,
     },
     conversationContainer: {
@@ -264,7 +264,6 @@ const styles = StyleSheet.create({
     },
     messageContainer: {
         marginVertical: 5,
-        // padding: 10,
         borderRadius: 10,
         alignItems: 'center',
     },
@@ -287,7 +286,7 @@ const styles = StyleSheet.create({
         fontFamily: "Inter",
         fontSize: 14,
         fontStyle: 'normal',
-        fontWeight: 400,
+        fontWeight: '400',
         lineHeight: 20
     },
     aiMessageText: {
@@ -295,7 +294,7 @@ const styles = StyleSheet.create({
         fontFamily: "Inter",
         fontSize: 14,
         fontStyle: 'normal',
-        fontWeight: 400,
+        fontWeight: '400',
         lineHeight: 24
     },
     streamingIndicator: {
@@ -315,8 +314,13 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
     },
     icon: {
-        width: 24,
-        height: 24,
+        width: 20,
+        height: 20,
+        resizeMode: 'contain',
+    },
+    send: {
+        width: 45,
+        height: 45,
         resizeMode: 'contain',
     },
     mainContent: {
@@ -344,7 +348,6 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         columnGap: 8,
         justifyContent: 'center',
-
     },
     button: {
         backgroundColor: '#2A2F36',
@@ -366,18 +369,29 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 20,
+        borderWidth: 1,
+        borderColor: '#D6FBE9',
+        borderStyle: 'solid',
+        padding: 10,
+        borderRadius: 25,
+        backgroundColor: "#121212",
+        shadowColor: 'rgba(0, 0, 0, 0.05)',
+        shadowOffset: { width: 0, height: 1.204 },
+        shadowOpacity: 1,
+        shadowRadius: 4.814,
+        elevation: 4,
     },
     input: {
         flex: 1,
         height: 50,
-        backgroundColor: '#242424',
+        backgroundColor: '#121212',
         borderRadius: 25,
         paddingHorizontal: 20,
         color: '#FFF',
         marginRight: 10,
     },
     microphoneButton: {
-        backgroundColor: '#5A5A5A',
+        backgroundColor: 'linear-gradient(180deg, #D6FBE9 0%, #FFDEF1 50%, #747D98 100%)',
         width: 50,
         height: 50,
         borderRadius: 25,
@@ -394,6 +408,5 @@ const styles = StyleSheet.create({
         height: 20,
         opacity: 0.5, 
         transform: [{ scale: 0.8 }], 
-        // padding: 10
     },
 });
