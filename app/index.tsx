@@ -247,6 +247,8 @@ export default function App() {
                                     />
                                 )}
                             </Text>
+                            {message?.chartData && <ChartComponent chartData={message?.chartData} />}
+                            {message.isStreaming && <Text style={styles.streamingIndicator}>...</Text>}
                         </View>
                     ))
                 )}
