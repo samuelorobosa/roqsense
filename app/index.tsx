@@ -6,11 +6,12 @@ import { Animated } from 'react-native';
 
 import uuid from 'react-native-uuid';
 import Markdown from 'react-native-markdown-display';
+import ChartComponent from "@/app/HistoricalChart";
 
 export default function App() {
     const [prompt, setPrompt] = useState('');
     const scrollViewRef = useRef<ScrollView>(null);
-    const [conversation, setConversation] = useState<{ id: number; type: string; content: string; isStreaming?: boolean }[]>([]);
+    const [conversation, setConversation] = useState<{ id: number; type: string; content: string; isStreaming?: boolean; chartData?: any }[]>([]);
     const [isStreaming, setIsStreaming] = useState(false);
     const [threadId, setThreadId] = useState(uuid.v4());
 
@@ -68,14 +69,37 @@ export default function App() {
                         });
                     }
                     else if (data.status === 'success') {
-                        // Finalize the streaming message
+                        let historicalData;
+                        let chartData: { labels: string[]; datasets: { data: number[]; color: (opacity: number) => string; strokeWidth: number }[] } | undefined = undefined
+                        
+                        if(data?.data?.historic_data){
+                             // Parse the historical data for rendering
+                            historicalData = data.data.historic_data[0].data.map((item: [number, number, number, number, number]) => ({
+                                time: new Date(item[0]).toLocaleDateString(), // Convert timestamp to readable date
+                                price: parseFloat(item[4].toString()), // Closing price
+                            }));
+
+                            chartData = {
+                                labels: historicalData.map((entry: { time: string; price: number }) => entry.time),
+                                datasets: [
+                                    {
+                                        data: historicalData.map((entry: { time: string; price: number }) => entry.price),
+                                        color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})`, // Line color
+                                        strokeWidth: 2, // Line thickness
+                                    },
+                                ],
+                            };
+                        }
+
                         setConversation(prevConversation => {
                             const updatedConversation = [...prevConversation];
                             const lastMessageIndex = updatedConversation.length - 1;
 
+                            // Append the chart data message
                             updatedConversation[lastMessageIndex] = {
                                 ...updatedConversation[lastMessageIndex],
-                                isStreaming: false
+                                isStreaming: false,
+                                ...(chartData && { chartData: chartData })
                             };
 
                             return updatedConversation;
@@ -182,14 +206,19 @@ export default function App() {
                     </View>
                 ) : (
                     conversation.map((message, index) => (
-                        <View key={message.id} style={[
-                            styles.messageContainer,
-                            message.type === 'user' ? styles.userMessageContainer : styles.aiMessageContainer
-                        ]}>
-                            <Text style={[
-                                styles.messageText,
-                                message.type === 'user' ? styles.userMessageText : styles.aiMessageText
-                            ]}>
+                        <View
+                            key={message.id}
+                            style={[
+                                styles.messageContainer,
+                                message.type === 'user' ? styles.userMessageContainer : styles.aiMessageContainer,
+                            ]}
+                        >
+                            <Text
+                                style={[
+                                    styles.messageText,
+                                    message.type === 'user' ? styles.userMessageText : styles.aiMessageText,
+                                ]}
+                            >
                                 <Markdown
                                 style={{
                                 text: {
@@ -201,10 +230,10 @@ export default function App() {
                                 </Markdown>
 
                                 {message.isStreaming && (
-                                    <Animated.Image 
-                                        source={require('../assets/images/Loader.png')} 
+                                    <Animated.Image
+                                        source={require('../assets/images/Loader.png')}
                                         style={[
-                                            styles.loader, 
+                                            styles.loader,
                                             {
                                                 opacity: pulseAnim.interpolate({
                                                     inputRange: [0, 1],
@@ -219,10 +248,11 @@ export default function App() {
                                                     }
                                                 ]
                                             }
-                                        ]} 
+                                        ]}
                                     />
                                 )}
                             </Text>
+                            {message?.chartData && <ChartComponent chartData={message?.chartData} />}
                         </View>
                     ))
                 )}
@@ -406,7 +436,8 @@ const styles = StyleSheet.create({
     loader: {
         width: 20,
         height: 20,
-        opacity: 0.5, 
-        transform: [{ scale: 0.8 }], 
+        opacity: 0.5,
+        transform: [{ scale: 0.8 }],
+        // padding: 10
     },
 });
