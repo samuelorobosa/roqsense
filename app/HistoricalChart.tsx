@@ -1,14 +1,40 @@
-import React from 'react';
-import { ScrollView, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
-
+import { Dimensions } from 'react-native';
+import { LineChartData } from 'react-native-chart-kit/dist/line-chart/LineChart';
 const screenWidth = Dimensions.get('window').width;
 
-// @ts-ignore
-function ChartComponent({ chartData }) {
+
+function ChartComponent({ chartData }: { chartData: LineChartData }) {
     if (!chartData) return null;
 
     return (
+        <LineChart
+            data={chartData}
+            width={screenWidth - 40} // Full width minus padding
+            height={220}
+            chartConfig={{
+                backgroundColor: '#ff0000',
+                backgroundGradientFrom: '#1A1E23',
+                backgroundGradientTo: '#2A2F36',
+                decimalPlaces: 2, // For precision
+                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                style: {
+                    borderRadius: 16,
+                },
+                propsForDots: {
+                    r: '4',
+                    strokeWidth: '2',
+                    stroke: '#ffa726',
+                },
+            }}
+            bezier
+            style={{
+                marginVertical: 8,
+                paddingHorizontal:8,
+                borderRadius: 16,
+            }}
+        />
             <LineChart
                 data={chartData}
                 width={screenWidth}

@@ -2,6 +2,7 @@ import React, {useState, useRef, useEffect} from 'react';
 import {View, Text, Image, TextInput, TouchableOpacity, StyleSheet, ScrollView} from 'react-native';
 import EventSource from "react-native-sse";
 import { Animated } from 'react-native';
+import { LinearGradient as AnimatedLinearGradient } from 'expo-linear-gradient';
 
 
 import uuid from 'react-native-uuid';
@@ -43,7 +44,7 @@ export default function App() {
                 },
                 method: 'POST',
                 body: JSON.stringify({
-                    message: prompt,
+                    message: customPrompt? customPrompt : prompt,
                     thread_id: threadId,
                 }),
                 pollingInterval: 0,
@@ -144,6 +145,7 @@ export default function App() {
 
     // Create an Animated value for the pulse effect
     const pulseAnim = useRef(new Animated.Value(0)).current;
+    const gradientAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
         // Create an infinite pulsing animation
@@ -162,6 +164,23 @@ export default function App() {
             ])
         ).start();
     }, [isStreaming]);
+
+    useEffect(() => {
+        Animated.loop(
+            Animated.sequence([
+                Animated.timing(gradientAnim, {
+                    toValue: 1,
+                    duration: 3000,
+                    useNativeDriver: false,
+                }),
+                Animated.timing(gradientAnim, {
+                    toValue: 0,
+                    duration: 3000,
+                    useNativeDriver: false,
+                })
+            ])
+        ).start();
+    }, [gradientAnim]);
 
     return (
         <View style={styles.container}>
@@ -191,7 +210,7 @@ export default function App() {
                         <Text style={styles.helpText}>What can I help with?</Text>
 
                         <View style={styles.buttonGroup}>
-                            {['Who is Roqqu Sensei?', 'Which coin should I invest in?', "What's my networth?", "What's the TON airdrop?"].map((text, index) => (
+                            {['Who is Zeus?', 'Which asset should I invest in?', "What's my networth?", "What's the TON airdrop?"].map((text, index) => (
                                 <TouchableOpacity
                                     key={index}
                                     style={styles.button}
@@ -203,6 +222,8 @@ export default function App() {
                                 </TouchableOpacity>
                             ))}
                         </View>
+
+                       
                     </View>
                 ) : (
                     conversation.map((message, index) => (
@@ -260,21 +281,50 @@ export default function App() {
 
             {/* Footer Input */}
             <View style={styles.footer}>
-                <TextInput
-                    value={prompt}
-                    onChange={e => setPrompt(e.nativeEvent.text)}
-                    style={styles.input}
-                    placeholder="Ask anything"
-                    placeholderTextColor="#AAA"
-                    editable={!isStreaming}
-                />
-                <TouchableOpacity onPress={() => {
-                    startStream()
-                    }}
-                    disabled={isStreaming || prompt.trim() === ''}
-                >
-                    <Image source={require('../assets/images/SendBtn.png')} style={styles.send} />
-                </TouchableOpacity>
+                <Animated.View style={{ 
+                    ...StyleSheet.absoluteFillObject, 
+                    borderRadius: 20,
+                    transform: [
+                        {
+                            translateX: gradientAnim.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [0, 1]
+                            })
+                        }
+                    ]
+                }}>
+                    <AnimatedLinearGradient
+                        // Colors for the gradient
+                        colors={['#D6FBE9', '#FFDEF1', '#747D98']}
+                        // Start point of the gradient (optional)
+                        start={{ x: 0, y: 0 }}
+                        // End point of the gradient (optional)
+                        end={{ x: 0, y: 1 }}
+                        // Style the gradient container
+                        style={{ 
+                            ...StyleSheet.absoluteFillObject, 
+                            borderRadius: 20 
+                        }}
+                    />
+                </Animated.View>
+                <View style={styles.footerInputContainer}>
+                    {/* Your content goes here */}
+                    <TextInput
+                        value={prompt}
+                        onChange={e => setPrompt(e.nativeEvent.text)}
+                        style={styles.input}
+                        placeholder="Ask anything"
+                        placeholderTextColor="#AAA"
+                        editable={!isStreaming}
+                    />
+                    <TouchableOpacity onPress={() => {
+                        startStream()
+                        }}
+                        disabled={isStreaming || prompt.trim() === ''}
+                    >
+                        <Image source={require('../assets/images/SendBtn.png')} style={styles.send} />
+                    </TouchableOpacity>
+                </View>
             </View>
         </View>
     );
@@ -396,20 +446,26 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
     footer: {
-        flexDirection: 'row',
+        height: 70, 
+        borderWidth: 2, 
+        borderColor: 'transparent', 
+        overflow: 'hidden',
         alignItems: 'center',
-        marginBottom: 20,
-        borderWidth: 1,
-        borderColor: '#D6FBE9',
-        borderStyle: 'solid',
-        padding: 10,
-        borderRadius: 25,
-        backgroundColor: "#121212",
+        marginBottom: 10,
         shadowColor: 'rgba(0, 0, 0, 0.05)',
         shadowOffset: { width: 0, height: 1.204 },
         shadowOpacity: 1,
         shadowRadius: 4.814,
-        elevation: 4,
+        // elevation: 4,
+        padding: 1,
+    },
+    footerInputContainer: {
+        flex: 1, 
+        backgroundColor: '#121212', 
+        borderRadius: 18, 
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 10
     },
     input: {
         flex: 1,
