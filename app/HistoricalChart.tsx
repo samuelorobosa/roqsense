@@ -1,9 +1,10 @@
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
-
+import { LineChartData } from 'react-native-chart-kit/dist/line-chart/LineChart';
 const screenWidth = Dimensions.get('window').width;
 
-function ChartComponent({ chartData }) {
+
+function ChartComponent({ chartData }: { chartData: LineChartData }) {
     if (!chartData) return null;
 
     return (
@@ -12,7 +13,7 @@ function ChartComponent({ chartData }) {
             width={screenWidth - 40} // Full width minus padding
             height={220}
             chartConfig={{
-                backgroundColor: '#1A1E23',
+                backgroundColor: '#ff0000',
                 backgroundGradientFrom: '#1A1E23',
                 backgroundGradientTo: '#2A2F36',
                 decimalPlaces: 2, // For precision
@@ -30,6 +31,7 @@ function ChartComponent({ chartData }) {
             bezier
             style={{
                 marginVertical: 8,
+                paddingHorizontal:8,
                 borderRadius: 16,
             }}
         />
