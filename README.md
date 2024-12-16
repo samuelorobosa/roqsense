@@ -97,17 +97,4 @@ npm start or yarn start: Start the Expo development server
 npm run ios or yarn ios: Run the app on an iOS simulator
 npm run android or yarn android: Run the app on an Android emulator
 npm run build or yarn build: Create a production build
-
-## 🌐 Deployment
-For deploying your Expo app:
-
-Run expo build:android or expo build:ios
-Follow Expo's deployment documentation for publishing to app stores
-
-## 📝 Additional Resources
-
-Expo Documentation
-React Native Documentation
-Expo Community Forum
-
    
