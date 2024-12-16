@@ -1,50 +1,113 @@
-# Welcome to your Expo app 👋
+# React Native Expo Project Setup and Development Guide
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## 🚀 Project Overview
+This is a React Native application developed using Expo, providing a streamlined mobile development experience that allows you to build native iOS and Android applications using JavaScript and React.
 
-## Get started
+## 📱 Prerequisites
+Before you begin, ensure you have the following installed:
 
-1. Install dependencies
+- **Node.js** (version 16 or newer)
+   - Download from [nodejs.org](https://nodejs.org/)
+   - Verify installation by running `node --version` in your terminal
 
+- **npm or Yarn** (package managers)
+   - npm comes bundled with Node.js
+   - Or install Yarn globally: `npm install -g yarn`
+
+- **Expo CLI**
+   - Install globally using npm:
+     ```bash
+     npm install -g expo-cli
+     ```
+   - Or with Yarn:
+     ```bash
+     yarn global add expo-cli
+     ```
+
+## 📲 Mobile Device Setup
+
+### iOS Users
+- Download Expo Go from the App Store
+   - Open the App Store
+   - Search for "Expo Go"
+   - Tap "Get" to install the application
+   - Launch Expo Go after installation
+
+### Android Users
+- Download Expo Go from Google Play Store
+   - Open Google Play Store
+   - Search for "Expo Go"
+   - Tap "Install"
+   - Launch Expo Go after installation
+
+## 💻 Local Development Setup
+
+1. Clone the Repository
+   ```bash
+   # Using HTTPS
+   git clone https://github.com/samuelorobosa/roqsense.git
+
+   # Or using SSH
+   git clone https://github.com/samuelorobosa/roqsense.git
+
+   # Navigate to project directory
+   cd roqsense
+    ```
+2. Install Dependencies
    ```bash
    npm install
    ```
 
-2. Start the app
-
+3. Start the Development Server
    ```bash
-    npx expo start
+    npm start
    ```
 
-In the output, you'll find options to open the app in a
+After running npm start, Expo will generate a QR code in the terminal and open a web interface
+For iOS:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Open the Camera app on your iPhone
+Point the camera at the QR code
+Tap the notification banner that appears to open in Expo Go
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
+For Android:
 
-When you're ready, run:
+Open the Expo Go app
+Tap "Scan QR Code"
+Scan the QR code displayed in the terminal
 
-```bash
-npm run reset-project
-```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🛠 Troubleshooting Common Issues
+Connection Problems
 
-## Learn more
+Ensure your computer and mobile device are on the same Wi-Fi network
+Check firewall settings
+Restart Expo development server
 
-To learn more about developing your project with Expo, look at the following resources:
+## QR Code Not Scanning
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Refresh the Expo developer tools by pressing r in the terminal
+Regenerate the QR code
+Restart Expo Go app
 
-## Join the community
+## 📦 Available Scripts
 
-Join our community of developers creating universal apps.
+npm start or yarn start: Start the Expo development server
+npm run ios or yarn ios: Run the app on an iOS simulator
+npm run android or yarn android: Run the app on an Android emulator
+npm run build or yarn build: Create a production build
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 🌐 Deployment
+For deploying your Expo app:
+
+Run expo build:android or expo build:ios
+Follow Expo's deployment documentation for publishing to app stores
+
+## 📝 Additional Resources
+
+Expo Documentation
+React Native Documentation
+Expo Community Forum
+
+   

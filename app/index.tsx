@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect} from 'react';
-import {View, Text, Image, TextInput, TouchableOpacity, StyleSheet, ScrollView} from 'react-native';
+import {KeyboardAvoidingView, Platform, View, Text, Image, TextInput, TouchableOpacity, StyleSheet, ScrollView} from 'react-native';
 import EventSource from "react-native-sse";
 import { Animated } from 'react-native';
 import { LinearGradient as AnimatedLinearGradient } from 'expo-linear-gradient';
@@ -38,7 +38,7 @@ export default function App() {
         setIsStreaming(true);
 
         try {
-            const es = new EventSource('http://localhost:8000/api/v1/chat', {
+            const es = new EventSource('https://roqsense-be-1.onrender.com/api/v1/chat', {
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -183,7 +183,11 @@ export default function App() {
     }, [gradientAnim]);
 
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+            <View style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
                 <Image source={require('../assets/images/roqqu-logo.png')} style={styles.logo} />
@@ -191,6 +195,7 @@ export default function App() {
                     //Create a new thread Id and start a new conversation
                     setThreadId(uuid.v4());
                     setConversation([]);
+                    setIsStreaming(false);
                 }}>
                     <Image source={require('../assets/images/newChat.png')} style={styles.icon} />
                 </TouchableOpacity>
@@ -327,6 +332,7 @@ export default function App() {
                 </View>
             </View>
         </View>
+        </KeyboardAvoidingView>
     );
 }
 
