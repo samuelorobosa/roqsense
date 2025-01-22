@@ -38,7 +38,9 @@ export default function App() {
         setIsStreaming(true);
 
         try {
-            const es = new EventSource('https://roqsense-be-1.onrender.com/api/v1/chat', {
+            // https://roqsense-be-1.onrender.com/api/v1/chat
+            // http://localhost:8282/
+            const es = new EventSource('http://localhost:8000/api/v1/chat', {
                 headers: {
                     'Content-Type': 'application/json',
                 },
